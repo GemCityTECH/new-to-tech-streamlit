@@ -1,6 +1,7 @@
 import logging
 import pandas as pd
 import schema
+import crud
 
 class EPACSVLoader:
     logger = logging.getLogger(__name__)
@@ -10,15 +11,21 @@ class EPACSVLoader:
         "State Name",
         "County Name",
         "City Name",
-        "Completeness Indicator"
+        "Completeness Indicator",
+        "Site Num",
+        "Latitude",
+        "Longitude"
     ]
 
-    def load_and_deserialize(self) -> list[schema.Geo]:
-        df = self._load_from_csv(self.csv_file)
-        return self._deserialize(df)
-
-    def _load_from_csv(self, csv_file: str) -> pd.DataFrame:
+    def load_and_deserialize(self, session) -> None:
+        df = self._parse_csv(self.csv_file)
         
+        geos = self._load_geos(session, df)
+        monitoring_sites = self._load_monitoring_sites(session, df)
+        print(geos[0].monitoring_sites)
+
+
+    def _parse_csv(self, csv_file: str) -> pd.DataFrame:
         try:
             df = pd.read_csv(csv_file, header=0, usecols=self.cols)
             print("Sample row:")
@@ -30,27 +37,53 @@ class EPACSVLoader:
             # Drop the Completeness column - no longer needed
             df.drop(columns=["Completeness Indicator"], inplace=True)
 
-            # Convert blank or 'NaN' city fields to None
+            # Convert blank or 'NaN' fields to None
             df = df.astype(object)
             df = df.where(pd.notnull(df), None)
-
-            # Grab unique geos
-            df.drop_duplicates(inplace=True)
             
             return df
         except:
-            self.logger.exception(f"Failed to parse {csv_file}")
+            self.logger.exception(f"Failed to parse {csv_file}")  
 
-    def _deserialize(self, df: pd.DataFrame) -> list[schema.Geo]:
+    def _load_geos(self, session, df: pd.DataFrame) -> list[schema.GeoBase]:
+        # Disregard columns we don't care about for this operation
+        geos_df = df[["State Name", "County Name", "City Name"]]
+
+        # Grab unique geos
+        geos_df = geos_df.drop_duplicates()
+
+        geos: set[schema.GeoBase] = set()
         try:
-            geos: list[schema.Geo] = []
             for index, row in df.iterrows():
-                geos.append(schema.Geo(
+                geos.add(schema.GeoBase(
                     state_name=row["State Name"],
                     county=row["County Name"],
                     city=row["City Name"],
                 ))
-            return geos
+            return crud.create_geos(session, geos)
         except:
-            self.logger.exception("Failed to populate database from dataframe")
+            self.logger.exception("Failed to load geos from dataframe")
+            raise
+
+    def _load_monitoring_sites(self, session, df: pd.DataFrame) -> list[schema.MonitoringSiteBase]:
+        # Disregard columns we don't care about for this operation
+        sites_df = df[["State Name", "County Name", "City Name", "Site Num", "Latitude", "Longitude"]]
+
+        # Grab unique geos
+        sites_df = sites_df.drop_duplicates()
+
+        try:
+            monitoring_sites: set[schema.MonitoringSiteBase] = set()
+            for index, row in df.iterrows():
+                geo = crud.get_geo_by_fields(session, state_name=row["State Name"], county=row["County Name"], city=row["City Name"])
+                if geo:
+                    monitoring_sites.add(schema.MonitoringSiteBase(
+                        geo_id=geo.id,
+                        site_num=row["Site Num"],
+                        latitude=row["Latitude"],
+                        longitude=row["Longitude"],
+                    ))
+            return crud.create_monitoring_sites(session, monitoring_sites)
+        except:
+            self.logger.exception("Failed to load monitoring sites from dataframe")
             raise

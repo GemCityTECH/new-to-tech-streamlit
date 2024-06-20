@@ -1,5 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String
+from sqlalchemy import Column, Float, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy.orm import relationship
 from streamlit_sqlalchemy import StreamlitAlchemyMixin
 
 Base = declarative_base()
@@ -8,10 +9,21 @@ Base = declarative_base()
 class Geo(Base, StreamlitAlchemyMixin):
     __tablename__ = "geo"
 
-    state_name = Column(String, nullable=False, primary_key=True)
-    county = Column(String, nullable=False, primary_key=True)
-    city = Column(String, nullable=True, primary_key=True)
+    id = Column(Integer, nullable=False, primary_key=True)
+    state_name = Column(String, nullable=False)
+    county = Column(String, nullable=False)
+    city = Column(String, nullable=True)
+
+    monitoring_sites = relationship("MonitoringSite", back_populates="geo")
+
+    __table_args__ = (UniqueConstraint('state_name', 'county', 'city'),)
     
-    # TODO can you add these columns?
-    # latitude = Column(String, nullable=True)
-    # longitude = Column(String, nullable=True)
+class MonitoringSite(Base, StreamlitAlchemyMixin):
+    __tablename__ = "monitoring_site"
+
+    geo_id = Column(Integer, ForeignKey("geo.id"))
+    geo = relationship("Geo", foreign_keys=[geo_id])
+
+    site_num = Column(Integer, nullable=False, primary_key=True)
+    latitude = Column(Float, nullable=False, primary_key=True)
+    longitude = Column(Float, nullable=False, primary_key=True)
