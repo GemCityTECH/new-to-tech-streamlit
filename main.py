@@ -29,13 +29,27 @@ def main():
 def app() -> None:
     st.header("Streamlit: EPA air quality data 2023")
     with CONNECTION.session as session:
-        st.write("Monitoring Sites")
-        st.map(
-            pandas.DataFrame([x.model_dump() for x in crud.get_monitoring_sites(session)]),
-            longitude = 'longitude',
-            latitude = 'latitude'
-        )
+        render_sidebar(session)
 
+def render_sidebar(session) -> None:
+    views = {
+        "Readme": render_readme,
+        "Monitoring Sites": render_monitoring_sites,
+    }
+    choice = st.sidebar.radio("Go To Page:", views.keys())
+    render_func = views.get(choice)
+    render_func(session)
+
+def render_readme(*_) -> None:
+    st.write(Path("README.MD").read_text())
+
+def render_monitoring_sites(session) -> None:
+    st.subheader("Monitoring Sites")
+    st.map(
+        pandas.DataFrame([x.model_dump() for x in crud.get_monitoring_sites(session)]),
+        longitude = 'longitude',
+        latitude = 'latitude'
+    )
 
 if __name__ == "__main__":
     # initialize the database connection

@@ -40,35 +40,20 @@ streamlit run main.py
 
 ### Starting Out
 
-- Add a 'genre' field to Book. Make sure that you can see this field using `GET /books` and update it using `PUT /books/{id}`.
+- Add the 'address' field to the database (which model class does it belong in?)
 
-- Add an endpoint that lets you `GET` a book by author and/or publication year.
+- Add a page (reachable from the sidebar) which allows you to search for and display a Geo
 
-- Add a `GET` endpoint that shows the average rating across all books.
+- Display all measurement sites in the above Geo both in a table and on a map
 
-- Add support for multiple ratings - and reviewers - per book, and to view both individual reviews and the average review score for a book.
+- Add forms where Geos and/or Measurement Sites can be created, updated, and deleted
 
-### Moderate
+- Display measurement data
+
+### More Involved
 
 - Add [caching](https://docs.streamlit.io/develop/concepts/architecture/caching) to the application where appropriate
 
-- Return the summary and ratings for a book using [Goodreads' API](https://www.goodreads.com/api/index).
+- Grab measurement data for previous years [here](https://aqs.epa.gov/aqsweb/airdata/download_files.html) and incorporate them into the app
 
-- Return author biographies using [Wikipedia's API](https://api.wikimedia.org/wiki/Getting_started_with_Wikimedia_APIs).
-
-- Rework this book-based sample app into a different domain: customer tracking, RPG character creator, pizza store, etc.
-
-### Complex
-
-- Add an ORM tool such as SQLAlchemy and use it to persist data between runs.
-
-- Migrate the app's API to GraphQL.
-
-- Dockerize the app.
-
-- Host/deploy the app publicly.
-
-- Build a small JS UI in front of the API.
-
-
-Parameter classes: https://aqs.epa.gov/aqsweb/documents/codetables/parameter_classes.html
+- Create a map of measurement sites where measurements (selectable from a dropdown) exceed a threshold (set by a slider)
