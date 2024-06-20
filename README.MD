@@ -50,7 +50,7 @@ streamlit run main.py
 
 ### Moderate
 
-- Share your solutions to one of the above exercises using a GitHub Pull Request.
+- Add [caching](https://docs.streamlit.io/develop/concepts/architecture/caching) to the application where appropriate
 
 - Return the summary and ratings for a book using [Goodreads' API](https://www.goodreads.com/api/index).
 
@@ -69,3 +69,6 @@ streamlit run main.py
 - Host/deploy the app publicly.
 
 - Build a small JS UI in front of the API.
+
+
+Parameter classes: https://aqs.epa.gov/aqsweb/documents/codetables/parameter_classes.html
