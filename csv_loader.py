@@ -20,9 +20,8 @@ class EPACSVLoader:
     def load_and_deserialize(self, session) -> None:
         df = self._parse_csv(self.csv_file)
         
-        geos = self._load_geos(session, df)
-        monitoring_sites = self._load_monitoring_sites(session, df)
-        print(geos[0].monitoring_sites)
+        self._load_geos(session, df)
+        self._load_monitoring_sites(session, df)
 
 
     def _parse_csv(self, csv_file: str) -> pd.DataFrame:
@@ -43,7 +42,8 @@ class EPACSVLoader:
             
             return df
         except:
-            self.logger.exception(f"Failed to parse {csv_file}")  
+            self.logger.exception(f"Failed to parse {csv_file}")
+            raise 
 
     def _load_geos(self, session, df: pd.DataFrame) -> list[schema.GeoBase]:
         # Disregard columns we don't care about for this operation

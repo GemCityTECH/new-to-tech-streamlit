@@ -4,7 +4,7 @@ import streamlit as st
 
 import csv_loader
 import crud
-from model import Base, MonitoringSite
+from model import Base
 from streamlit_sqlalchemy import StreamlitAlchemyMixin
 
 SQLITE_DATABASE_FILE = "aq_data.db"
