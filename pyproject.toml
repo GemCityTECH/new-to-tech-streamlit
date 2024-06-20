@@ -1,9 +1,10 @@
 [tool.poetry]
-name = "ntt-streamlit-sqlite"
+name = "new-to-tech-streamlit"
 version = "0.1.0"
 description = "Streamlit-on-SQLite sample app for NTT practical session"
 authors = ["Matt Alioto <matthew.j.alioto@gmail.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
